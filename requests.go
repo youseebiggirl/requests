@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"log"
@@ -26,9 +27,17 @@ func WithCookie(cookie string) Options {
 	}
 }
 
-func WithData(data io.Reader) Options {
+// func WithForm(data io.Reader) Options {
+// 	return func(r *requests) {
+// 		r.contentType = "application/x-www-form-urlencoded "
+// 		r.data = data
+// 	}
+// }
+
+func WithJson(j []byte) Options {
 	return func(r *requests) {
-		r.data = data
+		r.contentType = "application/json"
+		r.data = bytes.NewBuffer(j)
 	}
 }
 
@@ -38,6 +47,7 @@ type requests struct {
 	header http.Header
 	cookie string
 	data   io.Reader
+	contentType string
 }
 
 var requestsPool = sync.Pool{New: func() any { return &requests{} }}
@@ -68,6 +78,7 @@ func (r *requests) reset() {
 	r.url = ""
 	r.data = nil
 	r.cookie = ""
+	r.contentType = ""
 }
 
 func GET(url string, op ...Options) *result {
@@ -113,7 +124,7 @@ func post(r *requests) *result {
 	if r.cookie != "" {
 		req.Header.Set("Cookie", r.cookie)
 	}
-	//log.Println(req.URL.Scheme, req.Method)
+	req.Header.Set("Content-Type", r.contentType)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatalf("do POST Request error: %v\n", err)
