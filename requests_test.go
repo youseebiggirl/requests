@@ -39,7 +39,7 @@ func TestPOST(t *testing.T) {
 
 	r := POST("https://weibo.com/ajax/statuses/createFavorites?",
 		WithCookie(cookie),
-		WithHeaders(http.Header{"x-xsrf-token": []string{"ijwzsYYvFe3AzIyD2OMZF_fi"}}),
+		WithHeaders(http.Header{"x-xsrf-token": []string{""}}),
 		WithData(data),
 	)
 	fmt.Printf("%v %v\n", r.StatusCode(), r.StatusText())
